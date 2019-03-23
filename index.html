@@ -1,78 +1,102 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-	<meta charset="UTF-8" />
-	<title>🖥 URL slider</title>
-	<style>
-		body{
-			margin: 0px;
-			padding: 0px;
-		}
-		#app{
-			position: relative;
-			background: #eed;
-		}
-		iframe{
-			margin: 0px;
-			position: absolute;
-			top: 0px;
-			bottom: 0px;
-			left: 0px;
-			right: 0px;
-			width: 100%;
-			height: 100vh;
-		}
-	</style>
+    <meta charset="UTF-8"/>
+    <title>🖥 URL slider</title>
+    <style>
+        body {
+            margin: 0px;
+            padding: 0px;
+        }
+
+        #app {
+            position: relative;
+            background: #eed;
+        }
+
+        iframe {
+            margin: 0px;
+            position: absolute;
+            top: 0px;
+            bottom: 0px;
+            left: 0px;
+            right: 0px;
+            width: 100%;
+            height: 100vh;
+        }
+        .loader{
+            z-index: 1;
+        }
+        .loader.active{
+            z-index: 2;
+        }
+    </style>
 </head>
 
 <body>
-	<div id="app">
-	  <iframe id="loader" src="" frameborder="0"></iframe>
-	</div>
+<div id="app">
+    <iframe class="loader" data-id="1" src="" frameborder="0"></iframe>
+    <iframe class="loader active" data-id="2" src="" frameborder="0"></iframe>
+</div>
 
-	<script
-  	src="https://code.jquery.com/jquery-3.2.1.min.js"
-  	integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4="
-  	crossorigin="anonymous"></script>
-  <script>
+<script
+        src="https://code.jquery.com/jquery-3.2.1.min.js"
+        integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4="
+        crossorigin="anonymous"></script>
+<script>
 
-  	(($)=>{
-		  const sites = [	'http://jnystromdesign.se/', 'http://onedayinteract.se/']  // Some pages will deny iframe, so please test stuff, mkay? 
+    (($) => {
+        const sites = [
+            'https://sandys.se/',
+            'http://jnystromdesign.se/',
+            'https://k-mit.se/',
+            'https://sabo.se'
+        ]  // Some pages will deny iframe, so please test stuff, mkay?
 
-		  const showTimeSec = 10; // The amount of seconds a slide will be displayed
-		  const showTime = showTimeSec * 1000; // Slide time translated to milliseconds
-		  const transitionTime = 2000; // A time for transition.
+        const showTimeSec = 4; // The amount of seconds a slide will be displayed
+        const showTime = showTimeSec * 1000; // Slide time translated to milliseconds
+        const transitionTime = 2000; // A time for transition.
 
-		  function getSite(id){
-		    return sites[id];
-		  }
+        function getSite(id) {
+            return sites[id];
+        }
 
-		  function displaySlide(id){
-		  	$('#loader').fadeOut(transitionTime, ()=>{
-		  		$('#loader').attr('src', getSite(id) )
-			  	.fadeIn(transitionTime);
-		  	});
-		  }
+        function getPassiveLoader() {
+            return $('.loader').filter((i,item) => !$(item).hasClass('active'));
+        }
 
-		  function* slideshow(){
-		  	let id = 0;
-		  	while(1){
-		  		console.log(id)
-		  		displaySlide(id)
-		  		id = (id < sites.length-1) ? id+1 : 0 ;
-		  		yield ;	
-		  	}
-		  }
+        window.getPassiveLoader = getPassiveLoader;
 
-		  function onLoad() {
-		  	const slide = slideshow(); 
-		  	slide.next();
-		  	setInterval(()=>{slide.next()}, showTime);
-		  }    
+        function displaySlide(id) {
+            $('.loader.active').fadeOut(transitionTime);
+            let newLoader = getPassiveLoader()
+                .attr('src', getSite(id))
+                .fadeIn(transitionTime);
+            $('.loader').toggleClass('active');
 
-		$(onLoad);
-		  		  
-		})(jQuery);
-  </script>
+        }
+
+        function* slideshow() {
+            let id = 0;
+            while (1) {
+                displaySlide(id)
+                console.log(id);
+                id = (id < sites.length - 1) ? id + 1 : 0;
+                yield;
+            }
+        }
+
+        function onLoad() {
+            const slide = slideshow();
+            slide.next();
+            setInterval(() => {
+                slide.next()
+            }, showTime);
+        }
+
+        $(onLoad);
+
+    })(jQuery);
+</script>
 </body>
 </html>
