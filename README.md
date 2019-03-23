@@ -1,4 +1,4 @@
-#URL slider 
+# URL slider 
 
 A _really_ simple way to create a slideshow of webpages. 
 No need for a server. A browser and a proper internet connection will do the job. 
